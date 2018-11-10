@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+{% for item in source %}
+<div class="card mb-10 col-md-3" style="margin-bottom: 10px">
+
+        <img style="height: auto; width: 100%; display: block;" src="{{item.urlToImage}}" alt="{{item.author}}">
+                <a class="list-group-item list-group-item-action active" href="/source/{{item.id}}">
+            <li style="list-style: none">{{item.title}}</li>
+            <a href="{{item.url}}">More story ...</a>
+        </a>
+</div>
+
+{% endfor %}
+
+{% endblock %}
