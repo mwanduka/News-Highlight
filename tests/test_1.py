@@ -1,10 +1,10 @@
 import unittest
 # Import class to be tested
-# from app.models import [Class]
+from app.models import Article
 
 class Test(unittest.TestCase):
     '''
-    Test class to test behaviours of the [Class] class
+    Test class to test behaviours of the source class
 
     Args:
         unittest.TestCase : Test case class that helps create test cases
