@@ -12,34 +12,77 @@ api_key = None
 base_url = None
 
 def configure_request(app):
-    global api_key,base_url
+    global api_key, source_url, article_url
     api_key = app.config['NEWS_API_KEY']
-    base_url = app.config['NEWS_API_BASE_URL']
+    source_url = app.config['NEWS_API_SOURCE_URL']
+    article_url = app.config['NEWS_API_ARTICLE_URL']
 
-def get_source(language):
+def get_source(source):
     '''
-    Function that gets the json response to our url request
+    Function to get json to respond to url request
     '''
-    get_source_url = base_url.format(category,api_key)
 
-    with urllib.request.urlopen(get_source_url) as url:
+    the_url = source_url.format(source,api_key)
+    # print(the_url)
+
+    with urllib.request.urlopen(the_url) as url:
         get_source_data = url.read()
         get_source_response = json.loads(get_source_data)
 
         source_results = None
 
-        if get_source_response['results']:
+        if get_source_response['sources']:
+            source_results_list = get_source_response['sources']
+            source_results = process_results(source_results_list)
+            # print(source_results)
 
-            source_result_list = get_source_response['results']
-            source_results = process_results(source_result_list)
-            print(source_results)
     return source_results
 
-def get_article(category):
+def process_results(source_results_list):
     '''
-    Function that gets the json response to our url request
+    This function processes the source results and transfers them to a list of objects
+
+    Args:
+        source_list: list of dictionaties that contain news_source details
+    Returns:
+        source_results: list of source objects
     '''
-    get__url = base_url.format(category,api_key)
+    source_results = []
+    for source_item in source_results_list:
+        id = source_item.get('id')
+        name = source_item.get('name')
+        description = source_item.get('description')
+        url = source_item.get('url')
+        category = source_item.get('category')
+        language = source_item.get('language')
+        country = source_item.get('country')
+
+        new_stuff = Source(id, name, description, url, category, language, country)
+        source_results.append(new_stuff)
+        print(source_results)
+
+    return source_results
+
+def search_source(source_name):
+
+    search_source_url = 'https://newsapi.org/v2/sources?category={}&apiKey={}'.format(api_key, source_name)
+    with urllib.request.urlopen(search_source_url) as url:
+        search_source_data = url.read()
+        search_source_response = json.loads(search_source_data)
+
+        search_source_results = None
+
+        if search_source_response['sources']:
+            search_source_list = search_source_response['sources']
+            search_source_results = process_results (search_source_list)
+
+    return search_source_results
+
+def get_article(id):
+    '''
+    Function to get json to respond to url request
+    '''
+    get_article_url=article_url.format(id,api_key)
 
     with urllib.request.urlopen(get_article_url) as url:
         get_article_data = url.read()
@@ -47,62 +90,34 @@ def get_article(category):
 
         article_results = None
 
-        if get_article_response['results']:
-            article_result_list = get_article_response['results']
-            article_results = process_results(article_result_list)
-            print(article_results)
+        if get_article_response['articles']:
+            article_results_list = get_article_response['articles']
+            article_results = process_articles(article_results_list)
+
     return article_results
 
-
-def process_results(source_list):
+def process_articles(article_results_list):
     '''
-    Function that processes the source result and transform them to a list of Objects
+    This function processes the articles results and transfers them to a list of objects
 
     Args:
-        source_list:A list of dictionaries that contain source details
-
+        article_list: dictionaties that contain article details
     Returns:
-        source_list: A list of source objects
-    '''
-    source_results = []
-    for source_item in source_list:
-        id = source_details_response.get('id')
-        name = source_item.get('name')
-        description = source_item.get('description')
-        url = source_item.get('url')
-        category = category_item.get('category')
-        language = source_item.get('language')
-        country = source_item.get('country')
-
-        if url:
-            source_object = source(id,title,authour,publishedAt,description)
-            source_results.append(source_object)
-
-    return source_results
-
-def process_results(article_list):
-    '''
-    Function that processes the article result and transform them to a list of Objects
-
-    Args:
-        article_list:A list of dictionaries that contain article details
-
-    Returns:
-        article_list: A list of article objects
+        article_results: article objects
     '''
     article_results = []
-    for article_item in article_list:
-        id = article_details_response.get('id')
-        authour = article_item.get('authour')
-        title = article_details_response.get('original_title')
+    for article_item in article_results_list:
+        id = article_item.get('id')
+        name = article_item.get('name')
+        author = article_item.get('author')
+        title = article_item.get('title')
         description = article_item.get('description')
-        url = url_item.get('url')
+        url = article_item.get('url')
         urlToImage = article_item.get('urlToImage')
         publishedAt = article_item.get('publishedAt')
 
-
-        if url:
-            article_object = article(id,title,authour,publishedAt,description)
+        if urlToImage:
+            article_object = Article(id, name, author, title, description, url, urlToImage, publishedAt)
             article_results.append(article_object)
 
-    return article_results
+    return article_results  
