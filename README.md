@@ -13,6 +13,7 @@ Application that enables a user to:
 
 ## SETUP/INSTALLATION REQUIREMENTS
 To be able to view or use the application, here's the link to a live site that is deployed on Github pages:
+ https://mwanduka.github.io/News-Highlight/
 
 
 ## KNOWN BUGS
